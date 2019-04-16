@@ -1,68 +1,45 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Create-React-App With Docker
 
-## Available Scripts
+From https://www.peterbe.com/plog/how-to-create-react-app-with-docker.
+This example is a modification of sample code above. Please read the reference first.
 
-In the project directory, you can run:
+## Requirements
+- Docker
+- Global yarn
 
-### `npm start`
 
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Detail
+- Modified Dockerfile:
+```
+# Use alpine instead
+FROM node:8-alpine
 
-The page will reload if you make edits.<br>
-You will also see any lint errors in the console.
+ADD yarn.lock /yarn.lock
+ADD package.json /package.json
 
-### `npm test`
+ENV NODE_PATH=/node_modules
+ENV PATH=$PATH:/node_modules/.bin
 
-Launches the test runner in the interactive watch mode.<br>
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+# Install missing libs in alpine https://github.com/nodejs/docker-node/issues/282
+RUN apk add --no-cache --virtual .gyp \
+        python \
+        make \
+        g++ \
+    && yarn \
+    && apk del .gyp
 
-### `npm run build`
+WORKDIR /app
+ADD . /app
 
-Builds the app for production to the `build` folder.<br>
-It correctly bundles React in production mode and optimizes the build for the best performance.
+EXPOSE 3000
+EXPOSE 35729
 
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
+ENTRYPOINT ["sh", "/app/run.sh"]
+CMD ["start"]
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- Build image:
+`$ docker image build -t create-react-app:dev .`
 
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+- Run container and happy hacking!
+`$ docker container run -it -p 3000:3000 -p 35729:35729 -v $(pwd):/app create-react-app:dev`
