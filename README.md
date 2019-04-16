@@ -43,3 +43,7 @@ CMD ["start"]
 
 - Run container and happy hacking!
 `$ docker container run -it -p 3000:3000 -p 35729:35729 -v $(pwd):/app create-react-app:dev`
+
+## License
+
+MIT License
