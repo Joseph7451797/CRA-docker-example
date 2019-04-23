@@ -6,15 +6,19 @@ ADD package.json /package.json
 ENV NODE_PATH=/node_modules
 ENV PATH=$PATH:/node_modules/.bin
 
-RUN apk add --no-cache --virtual .gyp \
-        python \
-        make \
-        g++ \
-    && yarn \
-    && apk del .gyp
+RUN set -xe \
+    &&  apk add --no-cache --virtual .gyp \
+            python \
+            make \
+            g++ \
+        && yarn \
+        && apk del .gyp
 
 WORKDIR /app
-ADD . /app
+
+ADD ./run.sh /app/run.sh
+ADD ./public /app/public
+ADD ./src /app/src
 
 EXPOSE 3000
 EXPOSE 35729
