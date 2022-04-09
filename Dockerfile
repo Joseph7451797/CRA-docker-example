@@ -1,4 +1,4 @@
-FROM node:8-alpine
+FROM node:16-alpine
 
 ADD yarn.lock /yarn.lock
 ADD package.json /package.json
@@ -8,7 +8,7 @@ ENV PATH=$PATH:/node_modules/.bin
 
 RUN set -xe \
     &&  apk add --no-cache --virtual .gyp \
-            python \
+            python3 \
             make \
             g++ \
         && yarn \
